@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "252094113299",
+    "project_id": "fluid-boutique",
+    "storage_bucket": "fluid-boutique.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:252094113299:android:95d37a4fc797ce8e8401e6",
+        "android_client_info": {
+          "package_name": "com.example.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "252094113299-8mf0946etq6c1dfh2sua9p3oeam901oi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNXS2Z5f_BSnFslt8RHM1U6GGDcUromeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "252094113299-8mf0946etq6c1dfh2sua9p3oeam901oi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:252094113299:android:fd1710687ebe0b728401e6",
+        "android_client_info": {
+          "package_name": "com.example.fluid_boutique"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "252094113299-2qn9jkqs689cqjlco0sdq2u6b1s0cpmt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fluid_boutique",
+            "certificate_hash": "9b45575d17db2a2a93e5c2d7f4f0d2096c7a6f5b"
+          }
+        },
+        {
+          "client_id": "252094113299-8mf0946etq6c1dfh2sua9p3oeam901oi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNXS2Z5f_BSnFslt8RHM1U6GGDcUromeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "252094113299-8mf0946etq6c1dfh2sua9p3oeam901oi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
