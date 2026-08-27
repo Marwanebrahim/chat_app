@@ -24,7 +24,7 @@ abstract final class AppLightPalette {
 
   // Gradient
   static Gradient primaryGradient = LinearGradient(
-    colors: <Color>[purple.withValues(alpha: 0), paleViolet],
+    colors: <Color>[purple, paleViolet],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
