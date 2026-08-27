@@ -3,12 +3,14 @@ import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/app_theme.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
 import 'package:chat_app/firebase_options.dart';
+import 'package:chat_app/models/user_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -24,6 +26,8 @@ Future<void> initializations() async {
         ? HydratedStorageDirectory.web
         : HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
+  Hive.initFlutter();
+  Hive.registerAdapter(UserModelAdapter());
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
