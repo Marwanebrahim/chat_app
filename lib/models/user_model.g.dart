@@ -20,7 +20,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       username: fields[0] as String,
       email: fields[1] as String?,
       uid: fields[2] as String,
-      emoji: fields[3] as String?,
+      photoUrl: fields[3] as String?,
     );
   }
 
@@ -35,7 +35,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(2)
       ..write(obj.uid)
       ..writeByte(3)
-      ..write(obj.emoji);
+      ..write(obj.photoUrl);
   }
 
   @override

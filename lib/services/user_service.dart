@@ -8,6 +8,9 @@ class UserService {
 
   static const String boxName = "user";
 
+  Future<void> init() async {
+    await Hive.openBox<UserModel>(boxName);
+  }
   Future<void> saveUser(UserModel user) async {
     final box = Hive.box<UserModel>(boxName);
     await box.put("user", user);

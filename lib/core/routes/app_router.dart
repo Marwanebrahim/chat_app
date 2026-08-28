@@ -1,15 +1,29 @@
+import 'package:chat_app/bloc/auth_bloc/auth_bloc.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/features/auth/screens/login_screen.dart';
 import 'package:chat_app/features/auth/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.login:
-        return _buildRoute(const LoginScreen(), settings);
+        return _buildRoute(
+          BlocProvider(
+            create: (context) => AuthBloc(),
+            child: const LoginScreen(),
+          ),
+          settings,
+        );
       case AppRoutes.signup:
-        return _buildRoute(const SignupScreen(), settings);
+        return _buildRoute(
+          BlocProvider(
+            create: (context) => AuthBloc(),
+            child: const SignupScreen(),
+          ),
+          settings,
+        );
       default:
         return MaterialPageRoute(
           builder: (context) => Scaffold(

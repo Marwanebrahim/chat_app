@@ -15,13 +15,13 @@ class UserModel {
   final String uid;
 
   @HiveField(3)
-  final String? emoji;
+  final String? photoUrl;
 
   UserModel({
     required this.username,
     this.email,
     required this.uid,
-    this.emoji,
+    this.photoUrl,
   });
 
   factory UserModel.fromJson(Map<dynamic, dynamic> map) {
@@ -29,30 +29,30 @@ class UserModel {
       username: map['username'] ?? "",
       email: map['email'] ?? "",
       uid: map['uid'] ?? "",
-      emoji: map['emoji'],
+      photoUrl: map['photoUrl'],
     );
   }
 
   factory UserModel.empty() {
-    return UserModel(username: '', email: null, uid: '', emoji: null);
+    return UserModel(username: '', email: null, uid: '', photoUrl: null);
   }
 
   /// Model -> Map
   Map<String, dynamic> toJson() {
-    return {'username': username, 'email': email, 'uid': uid, 'emoji': emoji};
+    return {'username': username, 'email': email, 'uid': uid, 'photoUrl': photoUrl};
   }
 
   UserModel copyWith({
     String? username,
     String? email,
     String? uid,
-    String? emoji,
+    String? photoUrl,
   }) {
     return UserModel(
       username: username ?? this.username,
       email: email ?? this.email,
       uid: uid ?? this.uid,
-      emoji: emoji ?? this.emoji,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 
@@ -65,7 +65,7 @@ class UserModel {
       username: user.displayName ?? "",
       email: user.email ?? "",
       uid: user.uid,
-      emoji: user.photoURL,
+      photoUrl: user.photoURL,
     );
   }
 }

@@ -1,1 +1,22 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"fluid-boutique","appId":"1:252094113299:android:95d37a4fc797ce8e8401e6","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"fluid-boutique","configurations":{"android":"1:252094113299:android:95d37a4fc797ce8e8401e6","ios":"1:252094113299:ios:832a906a795bf0fa8401e6"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "chat-app-5037b",
+                    "appId": "1:959504216974:android:6e1521c4b3fac500112adf",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "chat-app-5037b",
+                    "configurations": {
+                        "android": "1:959504216974:android:6e1521c4b3fac500112adf",
+                        "ios": "1:959504216974:ios:8955b2ebb943b2e7112adf"
+                    }
+                }
+            }
+        }
+    }
+}

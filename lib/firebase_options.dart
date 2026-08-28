@@ -50,21 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBNXS2Z5f_BSnFslt8RHM1U6GGDcUromeg',
-    appId: '1:252094113299:android:95d37a4fc797ce8e8401e6',
-    messagingSenderId: '252094113299',
-    projectId: 'fluid-boutique',
-    storageBucket: 'fluid-boutique.firebasestorage.app',
+    apiKey: 'AIzaSyAim-wPcTN-m37E_75XqynyTGfj_IUCzEY',
+    appId: '1:959504216974:android:6e1521c4b3fac500112adf',
+    messagingSenderId: '959504216974',
+    projectId: 'chat-app-5037b',
+    storageBucket: 'chat-app-5037b.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAtzuKnqbNJaBaujfWrZgmrBVyG56xTxYE',
-    appId: '1:252094113299:ios:832a906a795bf0fa8401e6',
-    messagingSenderId: '252094113299',
-    projectId: 'fluid-boutique',
-    storageBucket: 'fluid-boutique.firebasestorage.app',
-    androidClientId: '252094113299-2qn9jkqs689cqjlco0sdq2u6b1s0cpmt.apps.googleusercontent.com',
-    iosClientId: '252094113299-o4pn50us6e97hth577qsp2tbde0frkc0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAya3NsxMS0TswJrOriZ9Ms162FG78M_7A',
+    appId: '1:959504216974:ios:8955b2ebb943b2e7112adf',
+    messagingSenderId: '959504216974',
+    projectId: 'chat-app-5037b',
+    storageBucket: 'chat-app-5037b.firebasestorage.app',
+    iosClientId: '959504216974-42tundjggoolb1e0j7vbmcsf02oigl7m.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatApp',
   );
 }

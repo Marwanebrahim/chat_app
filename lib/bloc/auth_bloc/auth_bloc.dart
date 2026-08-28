@@ -38,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         username: event.username,
-        emoji: "👨‍💼",
+        photoUrl: "",
       );
       emit(AuthSuccessState(user: result));
     } catch (e) {

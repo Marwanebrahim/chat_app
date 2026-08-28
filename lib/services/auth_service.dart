@@ -42,7 +42,7 @@ class AuthService {
     required String email,
     required String password,
     required String username,
-    required String emoji,
+    required String photoUrl,
   }) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -102,6 +102,7 @@ class AuthService {
       throw e.toString();
     }
   }
+
 
   Future<void> logout() async {
     try {
