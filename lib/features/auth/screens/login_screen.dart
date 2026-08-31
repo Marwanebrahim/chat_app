@@ -91,11 +91,11 @@ class _LoginScreenState extends State<LoginScreen>
     UserService.instance.getUser().then((user) {
       if (user != null) {
         if (mounted) {
-          // Navigator.pushNamedAndRemoveUntil(
-          //   context,
-          //   AppRoutes.mainNavigation,
-          //   (route) => false,
-          // );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.mainNavigation,
+            (route) => false,
+          );
         }
       }
     });

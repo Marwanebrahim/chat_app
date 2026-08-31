@@ -1,7 +1,9 @@
 import 'package:chat_app/bloc/auth_bloc/auth_bloc.dart';
+import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/features/auth/screens/login_screen.dart';
 import 'package:chat_app/features/auth/screens/signup_screen.dart';
+import 'package:chat_app/features/main_navigation/screens/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,6 +24,12 @@ class AppRouter {
             create: (context) => AuthBloc(),
             child: const SignupScreen(),
           ),
+          settings,
+        );
+      case AppRoutes.mainNavigation:
+        return _buildRoute(
+          BlocProvider(create: (context) => MainNavigationCubit(),
+          child: MainNavigation()),
           settings,
         );
       default:
