@@ -1,6 +1,10 @@
 import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
+import 'package:chat_app/bloc/profile_bloc/profile_bloc.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
+import 'package:chat_app/core/routes/app_routes.dart';
+import 'package:chat_app/features/chats/screens/chats_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
+import 'package:chat_app/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,22 +25,53 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   final List<Widget> _pages = [
-    Center(child: Text('Home Page')),
-    Center(child: Text('Search Page')),
-    Center(child: Text('Profile Page')),
-  ];
-
-  final List<AppBar> _appBars = [
-    AppBar(title: Text('Home')),
-    AppBar(title: Text('Search')),
-    AppBar(title: Text('Profile')),
+    ChatsScreen(),
+    Text('Search Page'),
+    BlocProvider(create: (context) => ProfileBloc(), child: ProfileScreen()),
   ];
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final List<AppBar> appBars = [
+      AppBar(
+        title: Text('Chats'),
+        forceMaterialTransparency: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.search);
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
+      ),
+      AppBar(
+        title: Text('Calls'),
+        forceMaterialTransparency: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.search);
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
+      ),
+      AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.search);
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
+        forceMaterialTransparency: true,
+      ),
+    ];
     return Scaffold(
-      appBar: _appBars[context.watch<MainNavigationCubit>().state],
+      appBar: appBars[context.watch<MainNavigationCubit>().state],
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Stack(
@@ -56,9 +91,9 @@ class _MainNavigationState extends State<MainNavigation> {
               child: BlocBuilder<MainNavigationCubit, int>(
                 builder: (BuildContext context, index) {
                   return Container(
-                    height: 64.h,
+                    height: 70.h,
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    margin: EdgeInsets.only(bottom: 32.h),
+                    margin: EdgeInsets.only(bottom: 24.h),
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: colors.borderColor.withValues(alpha: 0.4),
@@ -154,13 +189,13 @@ class _MainNavigationState extends State<MainNavigation> {
   FractionalOffset _align(int index) {
     switch (index) {
       case 0:
-        return const FractionalOffset(0.07, 0.5);
+        return const FractionalOffset(0.08, 0.5);
       case 1:
         return const FractionalOffset(0.49, 0.5);
       case 2:
-        return const FractionalOffset(0.93, 0.5);
+        return const FractionalOffset(0.92, 0.5);
       default:
-        return const FractionalOffset(0.07, 0.5);
+        return const FractionalOffset(0.08, 0.5);
     }
   }
 }

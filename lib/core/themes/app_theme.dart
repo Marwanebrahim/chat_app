@@ -28,11 +28,17 @@ class AppTheme {
         foregroundColor: colors.lightPurple,
         backgroundColor: colors.appBarBackground,
         elevation: 0,
+        titleTextStyle: textStyles.titleLarge.copyWith(
+          color: colors.lightPurple,
+        ),
+        centerTitle: true,
+        actionsPadding: EdgeInsets.only(right: 18),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.white,
-        hintStyle: textStyles.bodyLarge ,
+        hintStyle: textStyles.bodyLarge,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

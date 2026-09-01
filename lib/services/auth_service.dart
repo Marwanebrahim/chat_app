@@ -103,7 +103,6 @@ class AuthService {
     }
   }
 
-
   Future<void> logout() async {
     try {
       final isGoogleUser =
@@ -118,6 +117,59 @@ class AuthService {
 
       await _firebaseAuth.signOut();
       await _userService.clearUser();
+    } on FirebaseAuthException catch (e) {
+      throw e.message ?? "Something went wrong";
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) throw "No user is currently signed in";
+
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        throw "The current password is incorrect";
+      }
+      throw e.message ?? "Something went wrong";
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<UserModel> changeUserName({required String username}) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) throw "No user is currently signed in";
+
+      await user.updateDisplayName(username);
+
+      final updatedUser = UserModel(
+        uid: user.uid,
+        email: user.email!,
+        username: username,
+        photoUrl: user.photoURL,
+      );
+
+      await _firestore
+          .collection(FirebaseConstants.usersCollection)
+          .doc(user.uid)
+          .update(updatedUser.toJson());
+
+      await _userService.saveUser(updatedUser);
+      return updatedUser;
     } on FirebaseAuthException catch (e) {
       throw e.message ?? "Something went wrong";
     } catch (e) {
