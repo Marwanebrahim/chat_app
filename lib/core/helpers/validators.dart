@@ -20,6 +20,15 @@ class Validators {
     return null;
   }
 
+  static String? confirmPasswordValidator(String? password, String? confirmPassword) {
+    if (confirmPassword == null || confirmPassword.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (password != confirmPassword) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
   static String? nameValidator(String? name) {
     if (name == null || name.isEmpty) {
       return "Please enter your name";
@@ -29,4 +38,5 @@ class Validators {
     }
     return null;
   }
+
 }

@@ -230,7 +230,10 @@ class _SignupScreenState extends State<SignupScreen>
                             controller: _confirmPasswordController,
                             hintWidget: "Confirm your password",
                             validator: (value) =>
-                                Validators.passwordValidator(value),
+                                Validators.confirmPasswordValidator(
+                                  _passwordController.text,
+                                  value,
+                                ),
                             prefixIcon: Icon(
                               Icons.lock_reset_outlined,
                               color: colors.text3,
