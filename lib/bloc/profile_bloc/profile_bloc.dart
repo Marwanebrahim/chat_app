@@ -49,7 +49,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final user = await _profileService.changeUserName(
         username: event.username,
       );
-      emit(ChangeUserNameSuccessState(user: user));
+      emit(ProfileSuccessState(user: user));
     } catch (e) {
       emit(ProfileErrorState(errorMessage: e.toString()));
     }

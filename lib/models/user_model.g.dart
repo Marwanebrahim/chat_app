@@ -18,7 +18,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
     };
     return UserModel(
       username: fields[0] as String,
-      email: fields[1] as String?,
+      email: fields[1] as String,
       uid: fields[2] as String,
       photoUrl: fields[3] as String?,
     );

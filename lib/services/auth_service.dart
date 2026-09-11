@@ -52,12 +52,13 @@ class AuthService {
       if (credential.user == null) throw "Something went wrong";
 
       final user = UserModel.fromUserCredential(credential);
+      final updatedUser = user.copyWith(username: username, photoUrl: photoUrl);
       await _firestore
           .collection(FirebaseConstants.usersCollection)
           .doc(credential.user!.uid)
-          .set(user.toJson());
+          .set(updatedUser.toJson());
 
-      await _userService.saveUser(user);
+      await _userService.saveUser(updatedUser);
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -153,9 +154,7 @@ class AuthService {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) throw "No user is currently signed in";
-
-      await user.updateDisplayName(username);
-
+      
       final updatedUser = UserModel(
         uid: user.uid,
         email: user.email!,

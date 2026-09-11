@@ -32,7 +32,7 @@ abstract final class AppLightPalette {
 
 abstract final class AppDarkPalette {
   // Base colors
-  static const Color white = Color(0xFFFFFFFF);
+  static const Color white = Color(0xFF1E1E1E);
   static const Color background = Color(0xFF121116);
 
   // Text colors

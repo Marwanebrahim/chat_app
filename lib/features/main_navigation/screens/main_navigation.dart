@@ -1,7 +1,9 @@
 import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
 import 'package:chat_app/bloc/profile_bloc/profile_bloc.dart';
+import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
+import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
 import 'package:chat_app/features/chats/screens/chats_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
 import 'package:chat_app/features/profile/screens/profile_screen.dart';
@@ -24,14 +26,21 @@ class _MainNavigationState extends State<MainNavigation> {
     super.dispose();
   }
 
-  final List<Widget> _pages = [
-    ChatsScreen(),
-    Text('Search Page'),
-    BlocProvider(create: (context) => ProfileBloc(), child: ProfileScreen()),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      ChatsScreen(),
+      Text('Search Page'),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ProfileBloc>(
+            create: (context) => ProfileBloc()..add(GetProfileEvent()),
+          ),
+          BlocProvider<ThemeCubit>.value(value: context.read<ThemeCubit>()),
+        ],
+        child: ProfileScreen(),
+      ),
+    ];
     final colors = context.appColors;
     final List<AppBar> appBars = [
       AppBar(
@@ -78,11 +87,10 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             PageView.builder(
               controller: _pageController,
-
               itemBuilder: (context, index) {
-                return _pages[index];
+                return pages[index];
               },
-              itemCount: _pages.length,
+              itemCount: pages.length,
             ),
             Positioned(
               bottom: 0,

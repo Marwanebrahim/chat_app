@@ -7,3 +7,7 @@ extension ThemeExtensions on BuildContext {
   AppTextStyles get appTextStyles => Theme.of(this).extension<AppTextStyles>()!;
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
 }
+
+extension StringExtrnsions on String? {
+  bool isNullOrEmpty() => this == null || this!.isEmpty;
+}

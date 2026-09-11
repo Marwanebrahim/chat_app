@@ -38,9 +38,4 @@ class ChangePasswordSuccessState extends ProfileState {
   List<Object?> get props => [];
 }
 
-class ChangeUserNameSuccessState extends ProfileState {
-  final UserModel user;
-  ChangeUserNameSuccessState({required this.user});
-  @override
-  List<Object?> get props => [user];
-}
+

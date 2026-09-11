@@ -9,7 +9,7 @@ class UserModel {
   final String username;
 
   @HiveField(1)
-  final String? email;
+  final String email;
 
   @HiveField(2)
   final String uid;
@@ -19,7 +19,7 @@ class UserModel {
 
   UserModel({
     required this.username,
-    this.email,
+    required this.email,
     required this.uid,
     this.photoUrl,
   });
@@ -34,12 +34,17 @@ class UserModel {
   }
 
   factory UserModel.empty() {
-    return UserModel(username: '', email: null, uid: '', photoUrl: null);
+    return UserModel(username: 'user', email: "", uid: '', photoUrl: null);
   }
 
   /// Model -> Map
   Map<String, dynamic> toJson() {
-    return {'username': username, 'email': email, 'uid': uid, 'photoUrl': photoUrl};
+    return {
+      'username': username,
+      'email': email,
+      'uid': uid,
+      'photoUrl': photoUrl,
+    };
   }
 
   UserModel copyWith({
