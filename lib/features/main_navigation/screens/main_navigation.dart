@@ -4,7 +4,7 @@ import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
-import 'package:chat_app/features/chats/screens/chats_screen.dart';
+import 'package:chat_app/features/chats/screens/conversations_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
 import 'package:chat_app/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +29,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      ChatsScreen(),
+      ConversationsScreen(),
       Text('Search Page'),
       MultiBlocProvider(
         providers: [
