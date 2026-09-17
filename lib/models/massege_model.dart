@@ -1,6 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 
-enum MassegeStatus { sent, delivered, seen }
+enum MassegeStatus { pending, sent, delivered, seen, failed }
 
 class MassegeModel {
   final String massegeId;
@@ -25,8 +25,8 @@ class MassegeModel {
       status: MassegeStatus.values[json['status']],
     );
   }
- factory MassegeModel.fromSnapshot(DataSnapshot snapshot) {
-    final data =  Map<String, dynamic>.from(snapshot.value as Map);
+  factory MassegeModel.fromSnapshot(DataSnapshot snapshot) {
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
     return MassegeModel(
       massegeId: snapshot.key!,
       text: data['text'],

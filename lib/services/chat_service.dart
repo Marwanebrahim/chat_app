@@ -46,11 +46,10 @@ class ChatService {
     required MassegeModel massege,
   }) async {
     try {
-      final newMessageRef = _database
-          .ref('chats/$conversationId/messages')
-          .push();
-      final messageId = newMessageRef.key!;
-      final messageToSend = massege.copyWith(massegeId: messageId);
+      DatabaseReference newMessageRef = _database.ref(
+        'chats/$conversationId/messages/${massege.massegeId}',
+      );
+      final messageToSend = massege.copyWith(status: MassegeStatus.sent);
 
       await newMessageRef.set(messageToSend.toJson());
       final batch = _firestore.batch();
@@ -93,5 +92,44 @@ class ChatService {
     } catch (e) {
       throw "Something went wrong while sending your message";
     }
+  }
+
+  Future<void> markMessagesAsSeen({
+    required String conversationId,
+    required String currentUserId,
+    required List<MassegeModel> unSeenMasseges,
+  }) async {
+    try {
+      if (unSeenMasseges.isEmpty) return;
+      final ref = _database.ref('chats/$conversationId/messages');
+      final Map<String, dynamic> massegeMap = {};
+      for (var massege in unSeenMasseges) {
+        massegeMap["${massege.massegeId}/status"] = MassegeStatus.seen.index;
+      }
+      await ref.update(massegeMap);
+      await _firestore
+          .collection(FirebaseConstants.usersCollection)
+          .doc(currentUserId)
+          .collection(FirebaseConstants.conversationsCollection)
+          .doc(conversationId)
+          .update({'unReadCount': 0});
+    } on FirebaseException catch (e) {
+      if (e.code == 'unavailable' || e.code == 'network-request-failed') {
+        throw "No internet connection. Please check your network and try again";
+      }
+      if (e.code == 'permission-denied') {
+        throw "Something went wrong while updating message status";
+      }
+      throw "Something went wrong while updating message status";
+    } catch (e) {
+      throw "Something went wrong while updating message status";
+    }
+  }
+
+  String getMassegeId(String conversationId) {
+    final newMessageRef = _database
+        .ref('chats/$conversationId/messages')
+        .push();
+    return newMessageRef.key!;
   }
 }
