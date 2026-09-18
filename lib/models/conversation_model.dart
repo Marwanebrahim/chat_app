@@ -13,6 +13,15 @@ class ConversationModel {
     required this.unReadCount,
   });
 
+  factory ConversationModel.empty() {
+    return ConversationModel(
+      id: '',
+      participants: [],
+      lastMessage: '',
+      lastMessageTime: DateTime.now(),
+      unReadCount: 0,
+    );
+  }
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
       id: json['id'],

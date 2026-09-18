@@ -3,4 +3,5 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String mainNavigation = '/main_navigation';
   static const String search = '/search';
+  static const String chat = '/chat';
 }

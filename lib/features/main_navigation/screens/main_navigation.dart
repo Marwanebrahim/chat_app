@@ -1,10 +1,12 @@
+import 'package:chat_app/bloc/conversation_bloc/conversation_bloc.dart';
+import 'package:chat_app/bloc/conversation_bloc/conversation_event.dart';
 import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
 import 'package:chat_app/bloc/profile_bloc/profile_bloc.dart';
 import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
-import 'package:chat_app/features/chats/screens/conversations_screen.dart';
+import 'package:chat_app/features/chats/screens/chats_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
 import 'package:chat_app/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +31,11 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      ConversationsScreen(),
+      BlocProvider(
+        create: (context) =>
+            ConversationBloc()..add(ConversationsSubscriptionEvent()),
+        child: ChatsScreen(),
+      ),
       Text('Search Page'),
       MultiBlocProvider(
         providers: [
@@ -55,29 +61,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ],
       ),
-      AppBar(
-        title: Text('Calls'),
-        forceMaterialTransparency: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.search);
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-      AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.search);
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-        forceMaterialTransparency: true,
-      ),
+      AppBar(title: Text('Calls'), forceMaterialTransparency: true),
     ];
     return Scaffold(
       appBar: appBars[context.watch<MainNavigationCubit>().state],

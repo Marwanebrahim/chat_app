@@ -154,7 +154,7 @@ class AuthService {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) throw "No user is currently signed in";
-      
+
       final updatedUser = UserModel(
         uid: user.uid,
         email: user.email!,
@@ -173,6 +173,26 @@ class AuthService {
       throw e.message ?? "Something went wrong";
     } catch (e) {
       throw e.toString();
+    }
+  }
+
+  Future<UserModel> getUserById(String uid) async {
+    try {
+      final userDoc = await _firestore
+          .collection(FirebaseConstants.usersCollection)
+          .doc(uid)
+          .get();
+
+      if (!userDoc.exists) {
+        throw "User not found";
+      }
+
+      return UserModel.fromJson(userDoc.data()!);
+    } on FirebaseException catch (e) {
+      if (e.code == 'unavailable' || e.code == 'network-request-failed') {
+        throw "No internet connection. Please check your network and try again";
+      }
+      throw "Something went wrong while loading user data";
     }
   }
 }

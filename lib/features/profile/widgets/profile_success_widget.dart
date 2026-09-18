@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/bloc/profile_bloc/profile_bloc.dart';
 import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
@@ -10,6 +7,7 @@ import 'package:chat_app/core/themes/app_text_styles.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
 import 'package:chat_app/features/auth/widgets/custom_text_form_field.dart';
 import 'package:chat_app/features/profile/widgets/profile_list_tile.dart';
+import 'package:chat_app/features/profile/widgets/user_avatar_widget.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/widgets/custom_button_widget.dart';
 import 'package:flutter/material.dart';
@@ -44,32 +42,9 @@ class _ProfileSuccessWidgetState extends State<ProfileSuccessWidget> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final appTextStyles = context.appTextStyles;
-    log(widget.user.username);
     return Column(
       children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundColor: colors.lightPurple,
-          child: widget.user.photoUrl.isNullOrEmpty()
-              ? Text(
-                  widget.user.username.substring(0, 2).toUpperCase(),
-                  style: appTextStyles.displayLarge.copyWith(
-                    color: colors.white,
-                  ),
-                )
-              : ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: widget.user.photoUrl!,
-                    fit: BoxFit.cover,
-                    height: 100,
-                    width: 100,
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                  ),
-                ),
-        ),
+        UserAvatarWidget(user: widget.user, radius: 50),
         Text(widget.user.username, style: appTextStyles.titleLarge),
         Text(widget.user.email, style: appTextStyles.bodyMedium),
         SizedBox(height: 40.h),
