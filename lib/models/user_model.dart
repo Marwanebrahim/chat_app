@@ -17,6 +17,7 @@ class UserModel {
   @HiveField(3)
   final String? photoUrl;
 
+  String get usernameLowercase => username.toLowerCase();
   UserModel({
     required this.username,
     required this.email,
@@ -44,6 +45,7 @@ class UserModel {
       'email': email,
       'uid': uid,
       'photoUrl': photoUrl,
+      'usernameLowercase': usernameLowercase,
     };
   }
 

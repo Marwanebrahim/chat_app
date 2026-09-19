@@ -262,8 +262,8 @@ class _ProfileSuccessWidgetState extends State<ProfileSuccessWidget> {
           borderRadius: 12,
           gradient: colors.primaryGradient,
           onTap: () {
-            Navigator.pop(context);
             context.read<ProfileBloc>().add(LogOutEvent());
+            // Navigator.pop(context);
           },
           child: Center(child: Text("LogOut", style: appTextStyles.bodySmall)),
         ),

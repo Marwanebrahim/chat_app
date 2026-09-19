@@ -27,13 +27,13 @@ class ProfileScreen extends StatelessWidget {
             current is ChangePasswordSuccessState,
         listener: (context, state) {
           if (state is ProfileLogoutState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Logout successfully")),
-            );
             Navigator.pushNamedAndRemoveUntil(
               context,
               AppRoutes.login,
               (route) => false,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Logout successfully")),
             );
           }
           if (state is ChangePasswordSuccessState) {

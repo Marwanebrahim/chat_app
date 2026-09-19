@@ -28,7 +28,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ChangePasswordEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileLoadingState());
     try {
       await _profileService.changePassword(
         currentPassword: event.currentPassword,
@@ -56,7 +55,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   void _logOutEvent(LogOutEvent event, Emitter<ProfileState> emit) {
-    emit(ProfileLoadingState());
     try {
       _profileService.logout();
       emit(ProfileLogoutState());

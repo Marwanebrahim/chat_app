@@ -21,8 +21,8 @@ class ProfileService {
 
   Future<void> logout() async {
     try {
-      await _authService.logout();
       await _userService.clearUser();
+      await _authService.logout();
     } catch (e) {
       throw Exception("Failed to logout: $e");
     }

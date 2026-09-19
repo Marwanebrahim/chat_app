@@ -48,7 +48,7 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     ];
     final colors = context.appColors;
-    final List<AppBar> appBars = [
+    final List<AppBar?> appBars = [
       AppBar(
         title: Text('Chats'),
         forceMaterialTransparency: true,
@@ -62,6 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       AppBar(title: Text('Calls'), forceMaterialTransparency: true),
+      AppBar(forceMaterialTransparency: true),
     ];
     return Scaffold(
       appBar: appBars[context.watch<MainNavigationCubit>().state],
