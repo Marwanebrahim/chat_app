@@ -53,17 +53,13 @@ class ChatService {
 
       await newMessageRef.set(messageToSend.toJson());
       final batch = _firestore.batch();
+      final isSelfChat = senderId == receiverId;
       final senderDoc = _firestore
           .collection(FirebaseConstants.usersCollection)
           .doc(senderId)
           .collection(FirebaseConstants.conversationsCollection)
           .doc(conversationId);
 
-      final receiverDoc = _firestore
-          .collection(FirebaseConstants.usersCollection)
-          .doc(receiverId)
-          .collection(FirebaseConstants.conversationsCollection)
-          .doc(conversationId);
       batch.set(senderDoc, {
         'id': conversationId,
         'participants': [senderId, receiverId],
@@ -72,13 +68,21 @@ class ChatService {
         'unReadCount': 0,
       }, SetOptions(merge: true));
 
-      batch.set(receiverDoc, {
-        'id': conversationId,
-        'participants': [senderId, receiverId],
-        'lastMessage': messageToSend.text,
-        'lastMessageTime': messageToSend.dateTime.toIso8601String(),
-        'unReadCount': FieldValue.increment(1),
-      }, SetOptions(merge: true));
+      if (!isSelfChat) {
+        final receiverDoc = _firestore
+            .collection(FirebaseConstants.usersCollection)
+            .doc(receiverId)
+            .collection(FirebaseConstants.conversationsCollection)
+            .doc(conversationId);
+
+        batch.set(receiverDoc, {
+          'id': conversationId,
+          'participants': [senderId, receiverId],
+          'lastMessage': messageToSend.text,
+          'lastMessageTime': messageToSend.dateTime.toIso8601String(),
+          'unReadCount': FieldValue.increment(1),
+        }, SetOptions(merge: true));
+      }
 
       await batch.commit();
     } on FirebaseException catch (e) {

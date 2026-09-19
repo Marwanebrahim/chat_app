@@ -5,6 +5,7 @@ import 'package:chat_app/features/profile/widgets/user_avatar_widget.dart';
 import 'package:chat_app/models/conversation_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/services/auth_service.dart';
+import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,11 +25,20 @@ class _ConversationTileState extends State<ConversationTile> {
   void initState() {
     super.initState();
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    final peerUid = widget.conversation.participants.firstWhere(
-      (uid) => uid != currentUserId,
-      orElse: () => '',
+    final isSelfChat = widget.conversation.participants.every(
+      (uid) => uid == currentUserId,
     );
-    _peerFuture = peerUid.isEmpty
+
+    final peerUid = isSelfChat
+        ? currentUserId
+        : widget.conversation.participants.firstWhere(
+            (uid) => uid != currentUserId,
+            orElse: () => '',
+          );
+
+    _peerFuture = isSelfChat
+        ? UserService.instance.getUser().then((UserModel? user) => user!)
+        : peerUid.isEmpty
         ? Future.value(UserModel.empty())
         : AuthService.instance.getUserById(peerUid);
   }
@@ -139,7 +149,7 @@ class _ConversationTileState extends State<ConversationTile> {
                 AppRoutes.chat,
                 arguments: ChatScreenArgs(
                   peerUserModel: peer,
-                  conversationModel: widget.conversation,
+                  conversationId: widget.conversation.id,
                 ),
               );
             },
