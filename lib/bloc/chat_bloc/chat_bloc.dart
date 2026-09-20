@@ -104,7 +104,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _unsubscribeEvent(ChatUnsubscribeEvent event, Emitter<ChatState> emit) {
     _subscription?.cancel();
-    completer?.complete();
+    if (completer?.isCompleted == false) {
+      completer!.complete();
+    }
   }
 
   void _seenMassegesEvent(SeenMassegesEvent event, Emitter<ChatState> emit) {
@@ -151,7 +153,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   @override
   Future<void> close() {
     _subscription?.cancel();
-    completer?.complete();
+    if (completer?.isCompleted == false) {
+      completer!.complete();
+    }
     return super.close();
   }
 }

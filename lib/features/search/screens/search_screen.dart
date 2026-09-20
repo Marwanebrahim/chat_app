@@ -132,7 +132,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                   radius: 24,
                                 ),
                                 title: Text(
-                                  user.username,
+                                  user.uid ==
+                                          FirebaseAuth.instance.currentUser!.uid
+                                      ? "${user.username} (You)"
+                                      : user.username,
                                   style: appTextStyles.titleLarge.copyWith(
                                     color: colors.text1,
                                   ),
@@ -158,6 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     arguments: ChatScreenArgs(
                                       peerUserModel: user,
                                       conversationId: conversationId,
+                                      isSelfChat: currentUserId == user.uid,
                                     ),
                                   );
                                 },

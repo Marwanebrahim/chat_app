@@ -12,14 +12,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class ChatsScreen extends StatefulWidget {
-  const ChatsScreen({super.key});
+class ConversationsScreen extends StatefulWidget {
+  const ConversationsScreen({super.key});
 
   @override
-  State<ChatsScreen> createState() => _ChatsScreenState();
+  State<ConversationsScreen> createState() => _ConversationsScreenState();
 }
 
-class _ChatsScreenState extends State<ChatsScreen> {
+class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ConversationBloc, ConversationState>(
@@ -52,8 +52,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
           }
           return ListView.builder(
             itemCount: state.conversations.length,
-            itemBuilder: (context, index) =>
-                ConversationTile(conversation: state.conversations[index]),
+            itemBuilder: (context, index) => ConversationTile(
+              key: ValueKey(state.conversations[index].id),
+              conversation: state.conversations[index],
+            ),
           );
         }
         return Container();

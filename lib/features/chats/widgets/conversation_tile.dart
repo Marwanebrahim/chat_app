@@ -20,12 +20,12 @@ class ConversationTile extends StatefulWidget {
 
 class _ConversationTileState extends State<ConversationTile> {
   late final Future<UserModel> _peerFuture;
-
+  late bool isSelfChat;
   @override
   void initState() {
     super.initState();
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    final isSelfChat = widget.conversation.participants.every(
+    isSelfChat = widget.conversation.participants.every(
       (uid) => uid == currentUserId,
     );
 
@@ -115,7 +115,7 @@ class _ConversationTileState extends State<ConversationTile> {
           child: ListTile(
             leading: UserAvatarWidget(user: peer),
             title: Text(
-              peer.username,
+              isSelfChat ? "${peer.username} (You)" : peer.username,
               style: appTextStyles.titleLarge.copyWith(color: colors.text1),
             ),
             subtitle: Text(
@@ -150,6 +150,7 @@ class _ConversationTileState extends State<ConversationTile> {
                 arguments: ChatScreenArgs(
                   peerUserModel: peer,
                   conversationId: widget.conversation.id,
+                  isSelfChat: isSelfChat,
                 ),
               );
             },

@@ -6,7 +6,7 @@ import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
-import 'package:chat_app/features/chats/screens/chats_screen.dart';
+import 'package:chat_app/features/chats/screens/conversations_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
 import 'package:chat_app/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -22,21 +22,18 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   final PageController _pageController = PageController(initialPage: 0);
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  late final List<Widget> _pages;
 
   @override
-  Widget build(BuildContext context) {
-    final List<Widget> pages = [
+  void initState() {
+    super.initState();
+    _pages = [
       BlocProvider(
         create: (context) =>
             ConversationBloc()..add(ConversationsSubscriptionEvent()),
-        child: ChatsScreen(),
+        child: ConversationsScreen(),
       ),
-      Text('Search Page'),
+      const Text('Search Page'),
       MultiBlocProvider(
         providers: [
           BlocProvider<ProfileBloc>(
@@ -44,28 +41,38 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           BlocProvider<ThemeCubit>.value(value: context.read<ThemeCubit>()),
         ],
-        child: ProfileScreen(),
+        child: const ProfileScreen(),
       ),
     ];
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  List<AppBar?> _appBars(BuildContext context) => [
+    AppBar(
+      title: const Text('Chats'),
+      forceMaterialTransparency: true,
+      actions: [
+        IconButton(
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.search),
+          icon: const Icon(Icons.search),
+        ),
+      ],
+    ),
+    AppBar(title: const Text('Calls'), forceMaterialTransparency: true),
+    AppBar(forceMaterialTransparency: true),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
-    final List<AppBar?> appBars = [
-      AppBar(
-        title: Text('Chats'),
-        forceMaterialTransparency: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.search);
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-      AppBar(title: Text('Calls'), forceMaterialTransparency: true),
-      AppBar(forceMaterialTransparency: true),
-    ];
+
     return Scaffold(
-      appBar: appBars[context.watch<MainNavigationCubit>().state],
+      appBar: _appBars(context)[context.watch<MainNavigationCubit>().state],
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Stack(
@@ -73,9 +80,9 @@ class _MainNavigationState extends State<MainNavigation> {
             PageView.builder(
               controller: _pageController,
               itemBuilder: (context, index) {
-                return pages[index];
+                return _pages[index];
               },
-              itemCount: pages.length,
+              itemCount: _pages.length,
             ),
             Positioned(
               bottom: 0,

@@ -1,9 +1,13 @@
 import 'package:chat_app/bloc/auth_bloc/auth_bloc.dart';
+import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
+import 'package:chat_app/bloc/chat_bloc/chat_event.dart';
 import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
 import 'package:chat_app/bloc/search/user_search_bloc.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/features/auth/screens/login_screen.dart';
 import 'package:chat_app/features/auth/screens/signup_screen.dart';
+import 'package:chat_app/features/chats/args/chat_screen_args.dart';
+import 'package:chat_app/features/chats/screens/chat_screen.dart';
 import 'package:chat_app/features/main_navigation/screens/main_navigation.dart';
 import 'package:chat_app/features/search/screens/search_screen.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +45,17 @@ class AppRouter {
           BlocProvider(
             create: (context) => UserSearchBloc(),
             child: const SearchScreen(),
+          ),
+          settings,
+          isLeft: true,
+        );
+      case AppRoutes.chat:
+        final args = settings.arguments as ChatScreenArgs;
+        return _buildRoute(
+          BlocProvider(
+            create: (context) =>
+                ChatBloc()..add(GetSubscriptionEvent(args.conversationId)),
+            child: ChatScreen(args: args),
           ),
           settings,
           isLeft: true,

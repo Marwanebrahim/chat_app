@@ -49,11 +49,13 @@ class ChatService {
       DatabaseReference newMessageRef = _database.ref(
         'chats/$conversationId/messages/${massege.massegeId}',
       );
-      final messageToSend = massege.copyWith(status: MassegeStatus.sent);
+      final isSelfChat = senderId == receiverId;
+      final messageToSend = massege.copyWith(
+        status: isSelfChat ? MassegeStatus.seen : MassegeStatus.sent,
+      );
 
       await newMessageRef.set(messageToSend.toJson());
       final batch = _firestore.batch();
-      final isSelfChat = senderId == receiverId;
       final senderDoc = _firestore
           .collection(FirebaseConstants.usersCollection)
           .doc(senderId)

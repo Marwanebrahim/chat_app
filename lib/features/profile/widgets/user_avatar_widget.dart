@@ -7,7 +7,6 @@ class UserAvatarWidget extends StatelessWidget {
   const UserAvatarWidget({super.key, required this.user, this.radius = 24});
   final UserModel user;
   final double radius;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -16,13 +15,16 @@ class UserAvatarWidget extends StatelessWidget {
       radius: radius,
       backgroundColor: colors.lightPurple,
       child: user.photoUrl.isNullOrEmpty()
-          ? Text(
-              user.username.isEmpty
-                  ? "?"
-                  : user.username
-                        .substring(0, user.username.length >= 2 ? 2 : 1)
-                        .toUpperCase(),
-              style: appTextStyles.displayLarge.copyWith(color: colors.white),
+          ? FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                user.username.isEmpty
+                    ? "?"
+                    : user.username
+                          .substring(0, user.username.length >= 2 ? 2 : 1)
+                          .toUpperCase(),
+                style: appTextStyles.displayLarge.copyWith(color: colors.white),
+              ),
             )
           : ClipOval(
               child: CachedNetworkImage(
