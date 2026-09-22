@@ -2,7 +2,11 @@ import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:flutter/material.dart';
 
 class MessageInput extends StatelessWidget {
-  const MessageInput({super.key, required this.controller, required this.onSend});
+  const MessageInput({
+    super.key,
+    required this.controller,
+    required this.onSend,
+  });
   final TextEditingController controller;
   final VoidCallback onSend;
 

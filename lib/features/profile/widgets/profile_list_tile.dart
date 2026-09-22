@@ -10,6 +10,7 @@ class ProfileListTile extends StatelessWidget {
     this.trailing,
     this.isDanger = false,
     this.onTap,
+    this.isNavigator = true,
   });
   final String title;
   final String? subTitle;
@@ -17,6 +18,7 @@ class ProfileListTile extends StatelessWidget {
   final Widget? trailing;
   final bool isDanger;
   final Function()? onTap;
+  final bool isNavigator;
   @override
   Widget build(BuildContext context) {
     final appColors = context.appColors;
@@ -45,11 +47,13 @@ class ProfileListTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           trailing ?? const SizedBox.shrink(),
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            size: 16,
-            color: isDanger ? appColors.red : appColors.text2,
-          ),
+          isNavigator
+              ? Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: isDanger ? appColors.red : appColors.text2,
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );

@@ -21,11 +21,17 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final _messageController = TextEditingController();
   final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
   late final ChatBloc _chatBloc;
   bool _isBlocCaptured = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void didChangeDependencies() {
@@ -37,7 +43,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _chatBloc.add(AppLifecycleChangedEvent(state == AppLifecycleState.resumed));
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _chatBloc.add(ChatUnsubscribeEvent());
     _messageController.dispose();
     super.dispose();
@@ -148,7 +160,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     );
                   }
 
-                  // بنعكس القايمة عشان نستخدم reverse: true بالـ ListView
                   final reversedMessages = messages.reversed.toList();
 
                   return ListView.builder(

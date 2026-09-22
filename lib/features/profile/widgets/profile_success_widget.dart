@@ -67,6 +67,7 @@ class _ProfileSuccessWidgetState extends State<ProfileSuccessWidget> {
                 icon: Icons.dark_mode,
                 title: "Theme",
                 subTitle: "System",
+                isNavigator: false,
                 trailing: Switch(
                   value: context.isDarkMode,
                   activeTrackColor: colors.paleViolet.withValues(alpha: 0.35),

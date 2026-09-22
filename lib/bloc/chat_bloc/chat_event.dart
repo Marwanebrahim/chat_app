@@ -22,7 +22,21 @@ class ChatUnsubscribeEvent extends ChatEvent {
   List<Object?> get props => [];
 }
 
-class SeenMassegesEvent extends ChatEvent {
+// class SeenMassegesEvent extends ChatEvent {
+//   @override
+//   List<Object?> get props => [];
+// }
+
+class AppLifecycleChangedEvent extends ChatEvent {
+  final bool isForeground;
+  AppLifecycleChangedEvent(this.isForeground);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [isForeground];
+}
+
+class RetryMessageEvent extends ChatEvent {
+  final String massegeId;
+  RetryMessageEvent(this.massegeId);
+  @override
+  List<Object?> get props => [massegeId];
 }

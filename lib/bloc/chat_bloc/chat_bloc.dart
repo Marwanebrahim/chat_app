@@ -13,7 +13,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<GetSubscriptionEvent>(_subscribeEvent);
     on<SendMessageEvent>(_sendMessageEvent);
     on<ChatUnsubscribeEvent>(_unsubscribeEvent);
-    on<SeenMassegesEvent>(_seenMassegesEvent);
+    // on<SeenMassegesEvent>(_seenMassegesEvent);
+    on<RetryMessageEvent>(_retryMessageEvent);
+    on<AppLifecycleChangedEvent>(_onAppLifecycleChanged);
   }
 
   final _chatService = ChatService.instance;
@@ -22,39 +24,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Completer<void>? completer;
 
   String? _conversationId;
+  String? _receiverId;
   List<MassegeModel> _lastConfirmedMessages = [];
   final List<MassegeModel> _pendingMessages = [];
-
+  bool _isAppInForeground = true;
   Future<void> _subscribeEvent(
     GetSubscriptionEvent event,
     Emitter<ChatState> emit,
   ) async {
     _conversationId = event.conversationId;
     completer = Completer<void>();
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
     _subscription = _chatService
         .getMessagesStream(event.conversationId)
         .listen(
           (confirmedMessages) {
             _lastConfirmedMessages = confirmedMessages;
             _emitMergedMessages(emit, confirmedMessages);
-            final unSeenMessages = confirmedMessages
-                .where(
-                  (m) =>
-                      m.senderId != currentUserId &&
-                      m.status != MassegeStatus.seen,
-                )
-                .toList();
-            if (unSeenMessages.isNotEmpty) {
-              _chatService
-                  .markMessagesAsSeen(
-                    conversationId: event.conversationId,
-                    currentUserId: currentUserId,
-                    unSeenMasseges: unSeenMessages,
-                  )
-                  .catchError((e) {
-                    log(e.toString());
-                  });
+            if (_isAppInForeground) {
+              _markUnseenIfAny(confirmedMessages);
             }
           },
           onError: (e) {
@@ -65,13 +52,48 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await completer?.future;
   }
 
+  void _onAppLifecycleChanged(
+    AppLifecycleChangedEvent event,
+    Emitter<ChatState> emit,
+  ) {
+    _isAppInForeground = event.isForeground;
+
+    if (_isAppInForeground) {
+      _markUnseenIfAny(_lastConfirmedMessages);
+    }
+  }
+
+  void _markUnseenIfAny(List<MassegeModel> messages) {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final conversationId = _conversationId;
+    if (conversationId == null) return;
+
+    final unSeenMessages = messages
+        .where(
+          (m) => m.senderId != currentUserId && m.status != MassegeStatus.seen,
+        )
+        .toList();
+
+    if (unSeenMessages.isEmpty) return;
+
+    _chatService
+        .markMessagesAsSeen(
+          conversationId: conversationId,
+          currentUserId: currentUserId,
+          unSeenMasseges: unSeenMessages,
+        )
+        .catchError((e) {
+          log(e.toString());
+        });
+  }
+
   Future<void> _sendMessageEvent(
     SendMessageEvent event,
     Emitter<ChatState> emit,
   ) async {
     final conversationId = _conversationId;
     if (conversationId == null) return;
-
+    _receiverId = event.receiverId;
     final senderId = FirebaseAuth.instance.currentUser!.uid;
     final messageId = _chatService.getMassegeId(conversationId);
 
@@ -109,28 +131,59 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  void _seenMassegesEvent(SeenMassegesEvent event, Emitter<ChatState> emit) {
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    final conversationId = _conversationId;
-    if (conversationId == null) return;
+  // void _seenMassegesEvent(SeenMassegesEvent event, Emitter<ChatState> emit) {
+  //   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  //   final conversationId = _conversationId;
+  //   if (conversationId == null) return;
 
-    final unSeenMessages = _lastConfirmedMessages
-        .where(
-          (m) => m.senderId != currentUserId && m.status != MassegeStatus.seen,
-        )
-        .toList();
+  //   final unSeenMessages = _lastConfirmedMessages
+  //       .where(
+  //         (m) => m.senderId != currentUserId && m.status != MassegeStatus.seen,
+  //       )
+  //       .toList();
 
-    if (unSeenMessages.isEmpty) return;
+  //   if (unSeenMessages.isEmpty) return;
 
-    _chatService
-        .markMessagesAsSeen(
-          conversationId: conversationId,
-          currentUserId: currentUserId,
-          unSeenMasseges: unSeenMessages,
-        )
-        .catchError((e) {
-          log(e.toString());
-        });
+  //   _chatService
+  //       .markMessagesAsSeen(
+  //         conversationId: conversationId,
+  //         currentUserId: currentUserId,
+  //         unSeenMasseges: unSeenMessages,
+  //       )
+  //       .catchError((e) {
+  //         log(e.toString());
+  //       });
+  // }
+
+  Future<void> _retryMessageEvent(
+    RetryMessageEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    if (_conversationId == null || _receiverId == null) return;
+
+    final index = _pendingMessages.indexWhere(
+      (m) => m.massegeId == event.massegeId,
+    );
+    if (index == -1) return;
+    final retryingMessage = _pendingMessages[index].copyWith(
+      status: MassegeStatus.pending,
+    );
+    _pendingMessages[index] = retryingMessage;
+    _emitMergedMessages(emit, _lastConfirmedMessages);
+
+    try {
+      await _chatService.sendMessage(
+        conversationId: _conversationId!,
+        senderId: retryingMessage.senderId,
+        receiverId: _receiverId!,
+        massege: retryingMessage,
+      );
+    } catch (e) {
+      _pendingMessages[index] = retryingMessage.copyWith(
+        status: MassegeStatus.failed,
+      );
+      _emitMergedMessages(emit, _lastConfirmedMessages);
+    }
   }
 
   void _emitMergedMessages(
