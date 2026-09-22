@@ -79,6 +79,8 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             PageView.builder(
               controller: _pageController,
+              onPageChanged: (index) =>
+                  context.read<MainNavigationCubit>().updateIndex(index),
               itemBuilder: (context, index) {
                 return _pages[index];
               },
