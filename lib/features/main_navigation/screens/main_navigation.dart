@@ -1,3 +1,5 @@
+import 'package:chat_app/bloc/calls_bloc/calls_bloc.dart';
+import 'package:chat_app/bloc/calls_bloc/calls_event.dart';
 import 'package:chat_app/bloc/conversation_bloc/conversation_bloc.dart';
 import 'package:chat_app/bloc/conversation_bloc/conversation_event.dart';
 import 'package:chat_app/bloc/main_navigation/main_navigation_cubit.dart';
@@ -6,6 +8,7 @@ import 'package:chat_app/bloc/profile_bloc/profile_event.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
+import 'package:chat_app/features/calls/screens/calls_screen.dart';
 import 'package:chat_app/features/chats/screens/conversations_screen.dart';
 import 'package:chat_app/features/main_navigation/widgets/nav_bar_item.dart';
 import 'package:chat_app/features/profile/screens/profile_screen.dart';
@@ -33,7 +36,10 @@ class _MainNavigationState extends State<MainNavigation> {
             ConversationBloc()..add(ConversationsSubscriptionEvent()),
         child: ConversationsScreen(),
       ),
-      const Text('Search Page'),
+      BlocProvider(
+        create: (context) => CallsBloc()..add(CallsSubscriptionEvent()),
+        child: const CallsScreen(),
+      ),
       MultiBlocProvider(
         providers: [
           BlocProvider<ProfileBloc>(

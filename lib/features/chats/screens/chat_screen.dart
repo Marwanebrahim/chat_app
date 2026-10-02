@@ -1,6 +1,8 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/bloc/chat_bloc/chat_event.dart';
 import 'package:chat_app/bloc/chat_bloc/chat_state.dart';
+import 'package:chat_app/bloc/zego_cloud/zego_cloud_cubit.dart';
+import 'package:chat_app/bloc/zego_cloud/zego_cloud_state.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/features/chats/args/chat_screen_args.dart';
 import 'package:chat_app/features/chats/widgets/message_bubble.dart';
@@ -68,140 +70,178 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _messageController.clear();
   }
 
+  void _showCallError(BuildContext context, String? message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Call Failed'),
+        content: Text(message ?? 'Something went wrong, please try again.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'OK',
+              style: TextStyle(color: context.appColors.purple),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final appTextStyles = context.appTextStyles;
     final peer = widget.args.peerUserModel;
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Row(
-          children: [
-            UserAvatarWidget(user: peer, radius: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                widget.args.isSelfChat
-                    ? "${peer.username} (You)"
-                    : peer.username,
-                style: appTextStyles.titleLarge.copyWith(color: colors.text1),
+    return BlocListener<ZegoCloudCubit, ZegoCloudState>(
+      listener: (context, state) {
+        if (state.status == ZegoStatus.error) {
+          _showCallError(context, state.errorMessage);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: Row(
+            children: [
+              UserAvatarWidget(user: peer, radius: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  widget.args.isSelfChat
+                      ? "${peer.username} (You)"
+                      : peer.username,
+                  style: appTextStyles.titleLarge.copyWith(color: colors.text1),
+                ),
               ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.call, color: colors.purple),
+              onPressed: () {
+                context.read<ZegoCloudCubit>().startVoiceCall(
+                  targetUserId: peer.uid,
+                  targetUserName: peer.username,
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.videocam, color: colors.purple),
+              onPressed: () {
+                context.read<ZegoCloudCubit>().startVideoCall(
+                  targetUserId: peer.uid,
+                  targetUserName: peer.username,
+                );
+              },
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.call, color: colors.purple),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.videocam, color: colors.purple),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: BlocBuilder<ChatBloc, ChatState>(
-                builder: (context, state) {
-                  if (state is ChatLoadingState) {
-                    return Skeletonizer(
-                      child: ListView.builder(
-                        reverse: true,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    if (state is ChatLoadingState) {
+                      return Skeletonizer(
+                        child: ListView.builder(
+                          reverse: true,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          itemCount: 8,
+                          itemBuilder: (context, index) {
+                            final isMe = index.isEven;
+                            return MessageBubble(
+                              message: MassegeModel(
+                                massegeId: 'skeleton_$index',
+                                text: isMe
+                                    ? "Loading message here"
+                                    : "Loading reply text",
+                                senderId: isMe ? _currentUserId : peer.uid,
+                                dateTime: DateTime.now(),
+                                status: MassegeStatus.sent,
+                              ),
+                              isMe: isMe,
+                            );
+                          },
                         ),
-                        itemCount: 8,
-                        itemBuilder: (context, index) {
-                          final isMe = index.isEven;
-                          return MessageBubble(
-                            message: MassegeModel(
-                              massegeId: 'skeleton_$index',
-                              text: isMe
-                                  ? "Loading message here"
-                                  : "Loading reply text",
-                              senderId: isMe ? _currentUserId : peer.uid,
-                              dateTime: DateTime.now(),
-                              status: MassegeStatus.sent,
-                            ),
-                            isMe: isMe,
-                          );
-                        },
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  if (state is ChatErrorState) {
-                    return Center(
-                      child: Text(
-                        state.errorMessage,
-                        style: appTextStyles.bodyMedium.copyWith(
-                          color: colors.text2,
+                    if (state is ChatErrorState) {
+                      return Center(
+                        child: Text(
+                          state.errorMessage,
+                          style: appTextStyles.bodyMedium.copyWith(
+                            color: colors.text2,
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  final messages = (state as ChatLoadedState).messages;
+                    final messages = (state as ChatLoadedState).messages;
 
-                  if (messages.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "Say hi to ${peer.username} 👋",
-                        style: appTextStyles.bodyMedium.copyWith(
-                          color: colors.text2,
+                    if (messages.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "Say hi to ${peer.username} 👋",
+                          style: appTextStyles.bodyMedium.copyWith(
+                            color: colors.text2,
+                          ),
                         ),
+                      );
+                    }
+
+                    final reversedMessages = messages.reversed.toList();
+
+                    return ListView.builder(
+                      reverse: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                    );
-                  }
+                      itemCount: reversedMessages.length,
+                      itemBuilder: (context, index) {
+                        final message = reversedMessages[index];
+                        final isMe = message.senderId == _currentUserId;
 
-                  final reversedMessages = messages.reversed.toList();
+                        final isFirstOfDay =
+                            index == reversedMessages.length - 1 ||
+                            !_isSameDay(
+                              reversedMessages[index + 1].dateTime,
+                              message.dateTime,
+                            );
 
-                  return ListView.builder(
-                    reverse: true,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    itemCount: reversedMessages.length,
-                    itemBuilder: (context, index) {
-                      final message = reversedMessages[index];
-                      final isMe = message.senderId == _currentUserId;
-
-                      final isFirstOfDay =
-                          index == reversedMessages.length - 1 ||
-                          !_isSameDay(
-                            reversedMessages[index + 1].dateTime,
-                            message.dateTime,
-                          );
-
-                      return Column(
-                        children: [
-                          if (isFirstOfDay)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
-                                _formatDateHeader(message.dateTime),
-                                style: appTextStyles.bodySmall.copyWith(
-                                  color: colors.text3,
+                        return Column(
+                          children: [
+                            if (isFirstOfDay)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  _formatDateHeader(message.dateTime),
+                                  style: appTextStyles.bodySmall.copyWith(
+                                    color: colors.text3,
+                                  ),
                                 ),
                               ),
-                            ),
-                          MessageBubble(message: message, isMe: isMe),
-                        ],
-                      );
-                    },
-                  );
-                },
+                            MessageBubble(message: message, isMe: isMe),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-            MessageInput(controller: _messageController, onSend: _send),
-          ],
+              MessageInput(controller: _messageController, onSend: _send),
+            ],
+          ),
         ),
       ),
     );

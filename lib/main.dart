@@ -1,7 +1,9 @@
+import 'package:chat_app/bloc/zego_cloud/zego_cloud_cubit.dart';
 import 'package:chat_app/core/routes/app_router.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/app_theme.dart';
 import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
+import 'package:chat_app/core/utils/app_key.dart';
 import 'package:chat_app/firebase_options.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/services/user_service.dart';
@@ -14,6 +16,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +35,10 @@ Future<void> initializations() async {
   Hive.registerAdapter(UserModelAdapter());
   await UserService.instance.init();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(AppKey.navigatorKey);
+  ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI([
+    ZegoUIKitSignalingPlugin(),
+  ]);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
@@ -53,11 +61,15 @@ class MyApp extends StatelessWidget {
         final mediaQuery = MediaQuery.of(context);
         return MediaQuery(
           data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
-          child: BlocProvider(
-            create: (context) => ThemeCubit(),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (context) => ThemeCubit()),
+              BlocProvider(create: (context) => ZegoCloudCubit()),
+            ],
             child: BlocBuilder<ThemeCubit, ThemeMode>(
               builder: (BuildContext context, ThemeMode themeMode) {
                 return MaterialApp(
+                  navigatorKey: AppKey.navigatorKey,
                   debugShowCheckedModeBanner: false,
                   onGenerateRoute: AppRouter.onGenerateRoute,
                   initialRoute: AppRoutes.login,

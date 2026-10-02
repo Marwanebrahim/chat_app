@@ -26,7 +26,7 @@ class RetryWidget extends StatelessWidget {
             borderRadius: 12,
             gradient: colors.primaryGradient,
             onTap: onRetry,
-            child: Text("Retry", style: appTextStyles.bodySmall),
+            child: Center(child: Text("Retry", style: appTextStyles.bodySmall)),
           ),
         ],
       ),

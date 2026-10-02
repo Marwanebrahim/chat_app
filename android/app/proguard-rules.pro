@@ -1,0 +1,4 @@
+-keep class **.zego.**  { *; }
+-keep class **zego_uikit_signaling_plugin.**  { *; }
+-dontwarn com.google.protobuf.**
+-keep class com.google.protobuf.** { *; }

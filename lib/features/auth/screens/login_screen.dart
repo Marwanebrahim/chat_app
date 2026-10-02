@@ -1,6 +1,7 @@
 import 'package:chat_app/bloc/auth_bloc/auth_bloc.dart';
 import 'package:chat_app/bloc/auth_bloc/auth_event.dart';
 import 'package:chat_app/bloc/auth_bloc/auth_state.dart';
+import 'package:chat_app/bloc/zego_cloud/zego_cloud_cubit.dart';
 import 'package:chat_app/core/constants/app_assets.dart';
 import 'package:chat_app/core/extensions/app_extensions.dart';
 import 'package:chat_app/core/helpers/validators.dart';
@@ -91,6 +92,10 @@ class _LoginScreenState extends State<LoginScreen>
     UserService.instance.getUser().then((user) {
       if (user != null) {
         if (mounted) {
+          context.read<ZegoCloudCubit>().initCall(
+            userId: user.uid,
+            userName: user.username,
+          );
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.mainNavigation,
