@@ -1,4 +1,5 @@
 import 'package:chat_app/bloc/zego_cloud/zego_cloud_cubit.dart';
+import 'package:chat_app/core/constants/zego_constants.dart';
 import 'package:chat_app/core/routes/app_router.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/core/themes/app_theme.dart';
@@ -6,6 +7,7 @@ import 'package:chat_app/core/themes/cubit/theme_cubit.dart';
 import 'package:chat_app/core/utils/app_key.dart';
 import 'package:chat_app/firebase_options.dart';
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/services/local_notification_service.dart';
 import 'package:chat_app/services/user_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +20,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:zego_zimkit/zego_zimkit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +42,18 @@ Future<void> initializations() async {
   ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI([
     ZegoUIKitSignalingPlugin(),
   ]);
+  await ZIMKit().init(
+  appID: ZegoConstants.appID,
+  appSign: ZegoConstants.appSign,
+  notificationConfig: ZegoZIMKitNotificationConfig(
+    resourceID: "chat_app_message",
+    androidNotificationConfig: ZegoZIMKitAndroidNotificationConfig(
+      channelID: "chat_app_message_channel",
+      channelName: 'Chat Messages',
+    ),
+  ),
+);
+await LocalNotificationService.instance.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );

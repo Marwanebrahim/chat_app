@@ -5,6 +5,7 @@ import 'package:chat_app/bloc/chat_bloc/chat_event.dart';
 import 'package:chat_app/bloc/chat_bloc/chat_state.dart';
 import 'package:chat_app/models/massege_model.dart';
 import 'package:chat_app/services/chat_service.dart';
+import 'package:chat_app/services/zego_cloud_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,6 +29,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   List<MassegeModel> _lastConfirmedMessages = [];
   final List<MassegeModel> _pendingMessages = [];
   bool _isAppInForeground = true;
+
   Future<void> _subscribeEvent(
     GetSubscriptionEvent event,
     Emitter<ChatState> emit,
@@ -115,6 +117,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         receiverId: event.receiverId,
         massege: pendingMessage,
       );
+
+      if (senderId != event.receiverId) {
+        ZegoCloudService.instance
+            .sendMessagePush(receiverId: event.receiverId, text: event.massege)
+            .catchError((e) => log(e.toString()));
+      }
     } catch (e) {
       _pendingMessages.remove(pendingMessage);
       _pendingMessages.add(
@@ -130,30 +138,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       completer!.complete();
     }
   }
-
-  // void _seenMassegesEvent(SeenMassegesEvent event, Emitter<ChatState> emit) {
-  //   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-  //   final conversationId = _conversationId;
-  //   if (conversationId == null) return;
-
-  //   final unSeenMessages = _lastConfirmedMessages
-  //       .where(
-  //         (m) => m.senderId != currentUserId && m.status != MassegeStatus.seen,
-  //       )
-  //       .toList();
-
-  //   if (unSeenMessages.isEmpty) return;
-
-  //   _chatService
-  //       .markMessagesAsSeen(
-  //         conversationId: conversationId,
-  //         currentUserId: currentUserId,
-  //         unSeenMasseges: unSeenMessages,
-  //       )
-  //       .catchError((e) {
-  //         log(e.toString());
-  //       });
-  // }
 
   Future<void> _retryMessageEvent(
     RetryMessageEvent event,
@@ -178,6 +162,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         receiverId: _receiverId!,
         massege: retryingMessage,
       );
+
+      if (retryingMessage.senderId != _receiverId) {
+        ZegoCloudService.instance
+            .sendMessagePush(
+              receiverId: _receiverId!,
+              text: retryingMessage.text,
+            )
+            .catchError((e) => log(e.toString()));
+      }
     } catch (e) {
       _pendingMessages[index] = retryingMessage.copyWith(
         status: MassegeStatus.failed,
