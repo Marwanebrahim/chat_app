@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:chat_app/bloc/chat_bloc/chat_event.dart';
 import 'package:chat_app/bloc/chat_bloc/chat_state.dart';
+import 'package:chat_app/core/helpers/chat_helpers.dart';
 import 'package:chat_app/models/massege_model.dart';
 import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/zego_cloud_service.dart';
@@ -118,7 +119,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         massege: pendingMessage,
       );
 
-      if (senderId != event.receiverId) {
+      if (ChatHelpers.isSelfChat(senderId, event.receiverId)) {
         ZegoCloudService.instance
             .sendMessagePush(receiverId: event.receiverId, text: event.massege)
             .catchError((e) => log(e.toString()));
@@ -163,7 +164,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         massege: retryingMessage,
       );
 
-      if (retryingMessage.senderId != _receiverId) {
+      if (ChatHelpers.isSelfChat(retryingMessage.senderId, _receiverId!)) {
         ZegoCloudService.instance
             .sendMessagePush(
               receiverId: _receiverId!,

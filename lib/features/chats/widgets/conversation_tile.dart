@@ -1,4 +1,5 @@
 import 'package:chat_app/core/extensions/app_extensions.dart';
+import 'package:chat_app/core/helpers/chat_helpers.dart';
 import 'package:chat_app/core/routes/app_routes.dart';
 import 'package:chat_app/features/chats/args/chat_screen_args.dart';
 import 'package:chat_app/features/profile/widgets/user_avatar_widget.dart';
@@ -25,8 +26,8 @@ class _ConversationTileState extends State<ConversationTile> {
   void initState() {
     super.initState();
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    isSelfChat = widget.conversation.participants.every(
-      (uid) => uid == currentUserId,
+    isSelfChat = ChatHelpers.isSelfConversation(
+      widget.conversation.participants,
     );
 
     final peerUid = isSelfChat

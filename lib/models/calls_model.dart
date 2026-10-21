@@ -1,5 +1,6 @@
 enum CallType { video, voice }
-enum CallStatus { completed, missed, declined, busy }
+
+enum CallStatus { completed, missed, declined, busy, cancelled }
 
 class CallsModel {
   final String callId;

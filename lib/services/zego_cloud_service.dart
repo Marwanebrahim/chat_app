@@ -19,6 +19,8 @@ class ZegoCloudService {
   final _callsService = CallsService.instance;
 
   String? _currentUserId;
+  String? _currentUserName;
+  String? _currentCallId;
   DateTime? _callStartTime;
   ZegoCallUser? _currentPeer;
   CallType? _currentCallType;
@@ -34,6 +36,7 @@ class ZegoCloudService {
     }
 
     _currentUserId = userId;
+    _currentUserName = userName;
     await ZIMKit().connectUser(id: userId, name: userName);
     ZIMKit().getOnMessageReceivedNotifier().removeListener(_onMessageArrived);
     ZIMKit().getOnMessageReceivedNotifier().addListener(_onMessageArrived);
@@ -67,95 +70,100 @@ class ZegoCloudService {
       },
       events: ZegoUIKitPrebuiltCallEvents(
         onCallEnd: (event, defaultAction) {
-          if (_currentPeer != null) {
+          if (_currentIsOutgoing && _currentPeer != null) {
             final duration = _callStartTime == null
                 ? null
                 : DateTime.now().difference(_callStartTime!).inSeconds;
-
-            _saveRecordSafely(
-              currentUserId: userId,
-              callId: event.callID,
-              status: CallStatus.completed,
-              peerId: _currentPeer!.id,
-              peerName: _currentPeer!.name,
-              isOutgoing: _currentIsOutgoing,
-              callType: _currentCallType ?? CallType.voice,
+            _recordOutgoingCall(
+              CallStatus.completed,
               durationInSeconds: duration,
             );
+          } else {
+            _resetCurrentCallTracking();
           }
-          _resetCurrentCallTracking();
           defaultAction.call();
         },
       ),
       invitationEvents: ZegoUIKitPrebuiltCallInvitationEvents(
         onOutgoingCallAccepted: (callId, callee) {
           _callStartTime = DateTime.now();
-          _currentPeer = callee;
-          _currentIsOutgoing = true;
+        },
+        onOutgoingCallCancelButtonPressed: () {
+          _recordOutgoingCall(CallStatus.cancelled);
         },
         onOutgoingCallDeclined: (callId, callee, customData) {
-          _saveRecordSafely(
-            currentUserId: userId,
-            callId: callId,
-            status: CallStatus.declined,
-            peerId: callee.id,
-            peerName: callee.name,
-            isOutgoing: true,
-            callType: _currentCallType ?? CallType.voice,
-          );
-          _resetCurrentCallTracking();
+          _recordOutgoingCall(CallStatus.declined);
         },
         onOutgoingCallRejectedCauseBusy: (callId, callee, customData) {
-          _saveRecordSafely(
-            currentUserId: userId,
-            callId: callId,
-            status: CallStatus.busy,
-            peerId: callee.id,
-            peerName: callee.name,
-            isOutgoing: true,
-            callType: _currentCallType ?? CallType.voice,
-          );
-          _resetCurrentCallTracking();
+          _recordOutgoingCall(CallStatus.busy);
         },
-        onOutgoingCallTimeout: (callId, callee, isVideoCall) {
-          if (callee.isEmpty) return;
-          final callees = callee.first.id == userId
-              ? callee.last
-              : callee.first;
-          _saveRecordSafely(
-            currentUserId: userId,
-            callId: callId,
-            status: CallStatus.missed,
-            peerId: callees.id,
-            peerName: callees.name,
-            isOutgoing: true,
-            callType: isVideoCall ? CallType.video : CallType.voice,
-          );
-          _resetCurrentCallTracking();
-        },
-        onIncomingCallReceived:
-            (callId, caller, callType, callees, customData) {
-              _currentPeer = caller;
-              _currentCallType = callType == ZegoCallInvitationType.videoCall
-                  ? CallType.video
-                  : CallType.voice;
-              _currentIsOutgoing = false;
-              _callStartTime = DateTime.now();
-            },
-        onIncomingCallTimeout: (callId, caller) {
-          _saveRecordSafely(
-            currentUserId: userId,
-            callId: callId,
-            status: CallStatus.missed,
-            peerId: caller.id,
-            peerName: caller.name,
-            isOutgoing: false,
-            callType: _currentCallType ?? CallType.voice,
-          );
-          _resetCurrentCallTracking();
+        onOutgoingCallTimeout: (callId, callees, isVideoCall) {
+          _recordOutgoingCall(CallStatus.missed);
         },
       ),
     );
+  }
+
+  void _recordOutgoingCall(CallStatus status, {int? durationInSeconds}) {
+    final callerId = _currentUserId;
+    final callerName = _currentUserName;
+    final callId = _currentCallId;
+    final peer = _currentPeer;
+
+    log('ZEGO outgoing call -> $status, callId: $callId');
+
+    if (callerId == null ||
+        callerName == null ||
+        callId == null ||
+        peer == null) {
+      _resetCurrentCallTracking();
+      return;
+    }
+
+    final callType = _currentCallType ?? CallType.voice;
+    final now = DateTime.now();
+
+    _callsService
+        .saveCallRecordForBoth(
+          callerId: callerId,
+          calleeId: peer.id,
+          callerRecord: CallsModel(
+            callId: callId,
+            callType: callType,
+            status: status,
+            peerId: peer.id,
+            peerName: peer.name,
+            isOutgoing: true,
+            timestamp: now,
+            durationInSeconds: durationInSeconds,
+          ),
+          calleeRecord: CallsModel(
+            callId: callId,
+            callType: callType,
+            status: _statusForCallee(status),
+            peerId: callerId,
+            peerName: callerName,
+            isOutgoing: false,
+            timestamp: now,
+            durationInSeconds: durationInSeconds,
+          ),
+        )
+        .catchError((e) => log(e.toString()));
+
+    _resetCurrentCallTracking();
+  }
+
+  CallStatus _statusForCallee(CallStatus callerStatus) {
+    switch (callerStatus) {
+      case CallStatus.completed:
+        return CallStatus.completed;
+      case CallStatus.declined:
+        return CallStatus.declined;
+      case CallStatus.missed:
+      case CallStatus.busy:
+      case CallStatus.cancelled:
+        return CallStatus.missed;
+    }
   }
 
   Future<void> sendMessagePush({
@@ -193,34 +201,8 @@ class ZegoCloudService {
     }
   }
 
-  void _saveRecordSafely({
-    required String currentUserId,
-    required String callId,
-    required CallStatus status,
-    required String peerId,
-    required String peerName,
-    required bool isOutgoing,
-    required CallType callType,
-    int? durationInSeconds,
-  }) {
-    _callsService
-        .saveCallRecord(
-          currentUserId: currentUserId,
-          record: CallsModel(
-            callId: callId,
-            callType: callType,
-            status: status,
-            peerId: peerId,
-            peerName: peerName,
-            isOutgoing: isOutgoing,
-            timestamp: DateTime.now(),
-            durationInSeconds: durationInSeconds,
-          ),
-        )
-        .catchError((e) => log(e.toString()));
-  }
-
   void _resetCurrentCallTracking() {
+    _currentCallId = null;
     _callStartTime = null;
     _currentPeer = null;
     _currentCallType = null;
@@ -230,6 +212,7 @@ class ZegoCloudService {
   Future<void> unInit() async {
     ZIMKit().getOnMessageReceivedNotifier().removeListener(_onMessageArrived);
     _currentUserId = null;
+    _currentUserName = null;
     await ZegoUIKitPrebuiltCallInvitationService().uninit();
     await ZIMKit().disconnectUser();
   }
@@ -237,29 +220,42 @@ class ZegoCloudService {
   Future<void> startVideoCall({
     required String targetUserId,
     required String targetUserName,
-  }) async {
-    try {
-      await ZegoUIKitPrebuiltCallInvitationService().send(
-        invitees: [ZegoCallUser(targetUserId, targetUserName)],
-        isVideoCall: true,
-        resourceID: "chat_app_call",
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
+  }) => _startCall(
+    targetUserId: targetUserId,
+    targetUserName: targetUserName,
+    isVideoCall: true,
+  );
 
   Future<void> startVoiceCall({
     required String targetUserId,
     required String targetUserName,
+  }) => _startCall(
+    targetUserId: targetUserId,
+    targetUserName: targetUserName,
+    isVideoCall: false,
+  );
+
+  Future<void> _startCall({
+    required String targetUserId,
+    required String targetUserName,
+    required bool isVideoCall,
   }) async {
+    final callId =
+        'call_${_currentUserId}_${DateTime.now().millisecondsSinceEpoch}';
+    _currentCallId = callId;
+    _currentPeer = ZegoCallUser(targetUserId, targetUserName);
+    _currentCallType = isVideoCall ? CallType.video : CallType.voice;
+    _currentIsOutgoing = true;
+
     try {
       await ZegoUIKitPrebuiltCallInvitationService().send(
         invitees: [ZegoCallUser(targetUserId, targetUserName)],
-        isVideoCall: false,
+        isVideoCall: isVideoCall,
+        callID: callId,
         resourceID: "chat_app_call",
       );
     } catch (e) {
+      _resetCurrentCallTracking();
       rethrow;
     }
   }

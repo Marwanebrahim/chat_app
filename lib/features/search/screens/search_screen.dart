@@ -132,8 +132,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                   radius: 24,
                                 ),
                                 title: Text(
-                                  user.uid ==
-                                          FirebaseAuth.instance.currentUser!.uid
+                                  ChatHelpers.isSelfChat(
+                                        user.uid,
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                      )
                                       ? "${user.username} (You)"
                                       : user.username,
                                   style: appTextStyles.titleLarge.copyWith(

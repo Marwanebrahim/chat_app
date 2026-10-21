@@ -75,6 +75,8 @@ class CallTile extends StatelessWidget {
         return "Declined";
       case CallStatus.busy:
         return "Busy";
+      case CallStatus.cancelled:
+        return "Cancelled";
       case CallStatus.completed:
         final seconds = call.durationInSeconds ?? 0;
         final minutes = seconds ~/ 60;

@@ -8,22 +8,6 @@ class CallsService {
 
   final _firestore = FirebaseFirestore.instance;
 
-  Future<void> saveCallRecord({
-    required String currentUserId,
-    required CallsModel record,
-  }) async {
-    try {
-      await _firestore
-          .collection(FirebaseConstants.usersCollection)
-          .doc(currentUserId)
-          .collection('calls')
-          .doc(record.callId)
-          .set(record.toJson());
-    } on FirebaseException {
-      throw "Something went wrong while saving the call record";
-    }
-  }
-
   Stream<List<CallsModel>> getCallsStream(String currentUserId) {
     return _firestore
         .collection(FirebaseConstants.usersCollection)
@@ -35,5 +19,29 @@ class CallsService {
           (event) =>
               event.docs.map((d) => CallsModel.fromJson(d.data())).toList(),
         );
+  }
+
+  Future<void> saveCallRecordForBoth({
+    required String callerId,
+    required String calleeId,
+    required CallsModel callerRecord,
+    required CallsModel calleeRecord,
+  }) async {
+    try {
+      final batch = _firestore.batch();
+      final users = _firestore.collection(FirebaseConstants.usersCollection);
+
+      batch.set(
+        users.doc(callerId).collection('calls').doc(callerRecord.callId),
+        callerRecord.toJson(),
+      );
+      batch.set(
+        users.doc(calleeId).collection('calls').doc(calleeRecord.callId),
+        calleeRecord.toJson(),
+      );
+      await batch.commit();
+    } on FirebaseException {
+      throw "Something went wrong while saving the call record";
+    }
   }
 }

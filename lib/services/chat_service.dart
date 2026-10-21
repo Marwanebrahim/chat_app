@@ -1,4 +1,5 @@
 import 'package:chat_app/core/constants/firebase_constants.dart';
+import 'package:chat_app/core/helpers/chat_helpers.dart';
 import 'package:chat_app/models/conversation_model.dart';
 import 'package:chat_app/models/massege_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +50,7 @@ class ChatService {
       DatabaseReference newMessageRef = _database.ref(
         'chats/$conversationId/messages/${massege.massegeId}',
       );
-      final isSelfChat = senderId == receiverId;
+      final isSelfChat = ChatHelpers.isSelfChat(senderId, receiverId);
       final messageToSend = massege.copyWith(
         status: isSelfChat ? MassegeStatus.seen : MassegeStatus.sent,
       );
