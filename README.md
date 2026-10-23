@@ -2,7 +2,16 @@
 
 A real-time 1-on-1 chat app built with Flutter, with voice/video calls, call history and push notifications.
 
+## Demo
+
+[▶ Watch the demo video](assets/demo/chat_app_demo.mp4)
+
+[⬇ Download the APK](https://github.com/Marwanebrahim/chat_app/releases/tag/releases)
+
 <!-- Add 4–6 screenshots: login, chats list, conversation, search, calls, profile (dark mode) -->
+
+## Screenshots
+
 <p>
   <img src="assets/screenshots/chats.png" width="220" />
   <img src="assets/screenshots/calls.png" width="220" />
@@ -56,18 +65,21 @@ Design decisions:
 
 1. Install Flutter and clone the repo, then run `flutter pub get`.
 2. **Firebase:** create a project, run `flutterfire configure`, enable Email and Google sign-in, Firestore and Realtime Database, then publish the rules below.
-3. **ZEGOCLOUD:** create a project and note the AppID and AppSign. In the console, under *Service Management → In-app Chat → Notification configuration*:
+3. **ZEGOCLOUD:** create a project and note the AppID and AppSign. In the console, under _Service Management → In-app Chat → Notification configuration_:
    - add your Firebase service account as the Android credentials
    - add a push resource `chat_app_call` (FCM channel `chat_app_call_channel`, FCM data messages enabled)
    - add a push resource `chat_app_message` (FCM channel `chat_app_message_channel`, FCM data messages disabled)
 4. Create `env.json` in the project root (it is git-ignored):
+
 ```json
-   {
-     "ZEGO_APP_ID": "your-app-id",
-     "ZEGO_APP_SIGN": "your-app-sign"
-   }
+{
+  "ZEGO_APP_ID": "your-app-id",
+  "ZEGO_APP_SIGN": "your-app-sign"
+}
 ```
+
 5. Run on a real device (calls and push notifications do not work on emulators):
+
 ```bash
    flutter run --dart-define-from-file=env.json
 ```
