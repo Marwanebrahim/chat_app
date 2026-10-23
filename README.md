@@ -4,7 +4,7 @@ A real-time 1-on-1 chat app built with Flutter, with voice/video calls, call his
 
 ## Demo
 
-[▶ Watch the demo video](assets/demo/chat_app_demo.mp4)
+[▶ Watch the demo video](https://drive.google.com/file/d/1hZ_SRWRuT53FRsrOPVnE5zgbODku-efL/view?usp=drive_link)
 
 [⬇ Download the APK](https://github.com/Marwanebrahim/chat_app/releases/tag/releases)
 
